@@ -338,7 +338,7 @@ class Backtest():
 
 def main():
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    path = f"{dir_path}/Imports"
+    path = f"{dir_path}"
 
     backtest = Backtest(path)
     
