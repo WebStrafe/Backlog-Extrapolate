@@ -56,6 +56,11 @@ class Trade():
         self.date = self.exit.date
         self.profitLossPercent = self.exit.profitLossPercent
 
+        self.month = self.date.strftime("%B")
+        self.year = self.date.year
+
+        
+
 
 
 
@@ -313,32 +318,9 @@ class Backtest():
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def main():
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    path = f"{dir_path}"
+    path = f"{dir_path}/Imports"
 
     backtest = Backtest(path)
     
