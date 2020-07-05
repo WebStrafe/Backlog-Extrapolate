@@ -15,6 +15,112 @@ import glob
 import calendar
 
 
+
+
+
+
+class Drawdown():
+    def __init__(self, peakTrade, lowTrade, recoveryTrade):
+        self.peakTrade = peakTrade
+        self.lowTrade = lowTrade
+        self.recoveryTrade = recoveryTrade
+        self.percentageChange = round(((self.lowTrade.balance - self.peakTrade.balance) / self.peakTrade.balance) * 100, 2)
+        self.daysInDrawdown = (self.recoveryTrade.date - self.peakTrade.date).days
+        # self.percentage = percentage
+        # self.daysInDrawdown = daysInDrawdown
+
+
+
+
+def Calculate_Drawdowns(trades):
+    drawdowns = []
+
+
+    for x in range(0, len(trades)): # This gets the lowest low for each peak (can be duplicate lows.) and also finds the recovery. Once the recovery is found, it checks to see if lowestLow is same as Peak, and if it is, break and do not add to drawdowns list. There will be NO 'Non-Recoveries'.
+        lowestLow = trades[x]
+        recovery = None
+        for y in range(x+1, len(trades)):
+            if trades[y].balance < lowestLow.balance:
+                lowestLow = trades[y]
+            
+            if trades[y].balance >= trades[x].balance:
+                recovery = trades[y]
+                
+                if trades[x].balance == lowestLow.balance:
+                    break
+                else:
+                    drawdown = Drawdown(trades[x], lowestLow, recovery)
+                    drawdowns.append(drawdown)
+                    break
+        
+    
+
+    duplicateLowsAndRecoveryTrades = {} # If the Recovery Date AND Low Date is the SAME, then it will add to this dict.
+
+    for eachDrawdown in drawdowns:
+        lowDate = eachDrawdown.lowTrade.date
+        recoveryDate = eachDrawdown.recoveryTrade.date
+        lowRecoveryDate = f"{lowDate} | {recoveryDate}"
+        if lowRecoveryDate in duplicateLowsAndRecoveryTrades:
+            duplicateLowsAndRecoveryTrades[lowRecoveryDate].append(eachDrawdown)
+        else:
+            duplicateLowsAndRecoveryTrades[lowRecoveryDate] = []
+            duplicateLowsAndRecoveryTrades[lowRecoveryDate].append(eachDrawdown)
+
+
+    lowestDrawdowns = []
+    for eachKey in duplicateLowsAndRecoveryTrades: # This will then find the lowestDrawdowns for each KEY (recoveryDate and lowDate), so only the lowest possible percentage is found.
+        lowestPercentageChange = 0.01
+        lowestDrawdown = None
+        for eachDrawdown in duplicateLowsAndRecoveryTrades[eachKey]:
+            
+            if eachDrawdown.percentageChange <= lowestPercentageChange:
+                lowestDrawdown = eachDrawdown
+                lowestPercentageChange = eachDrawdown.percentageChange
+    
+        lowestDrawdowns.append(lowestDrawdown)
+    
+    
+    duplicateRecoveryTrades = {} # This searches JUST for duplicate recovery trades and fills this dict
+
+    for eachDrawdown in lowestDrawdowns:
+        if eachDrawdown.recoveryTrade.date in duplicateRecoveryTrades:
+            duplicateRecoveryTrades[eachDrawdown.recoveryTrade.date].append(eachDrawdown)
+        else:
+            duplicateRecoveryTrades[eachDrawdown.recoveryTrade.date] = []
+            duplicateRecoveryTrades[eachDrawdown.recoveryTrade.date].append(eachDrawdown)
+    
+
+    lowestDrawdownsNoDuplicateRecoveries = [] # This then finds the lowest of ALL THESE ONES now, filtering it even further to where there shouldn't be ANY overlap whatsoever.
+    for eachRecoveryDate in duplicateRecoveryTrades:
+        lowestPercentageChange = 0.01
+        lowestDrawdown = None
+        for eachDrawdown in duplicateRecoveryTrades[eachRecoveryDate]:
+            if eachDrawdown.percentageChange <= lowestPercentageChange:
+                lowestPercentageChange = eachDrawdown.percentageChange
+                lowestDrawdown = eachDrawdown
+
+        lowestDrawdownsNoDuplicateRecoveries.append(lowestDrawdown)
+
+
+    print("\n\nHere are drawdowns under -15%:\n")
+    for eachDrawdown in lowestDrawdownsNoDuplicateRecoveries:
+        if eachDrawdown.percentageChange <= -15.00:
+            print(f"{eachDrawdown.peakTrade.date} - {eachDrawdown.lowTrade.date} - {eachDrawdown.recoveryTrade.date}  ==  {eachDrawdown.percentageChange}%   |   Days in Drawdown: {eachDrawdown.daysInDrawdown}")
+            print(f"{eachDrawdown.peakTrade.balance} - {eachDrawdown.lowTrade.balance} - {eachDrawdown.recoveryTrade.balance}")
+            print("\n\n")
+    
+
+    return lowestDrawdownsNoDuplicateRecoveries
+
+
+
+
+
+
+
+
+
 def Monthly_Profit(trades, fakeTrade):
     from backtester import Trade
 
@@ -87,10 +193,15 @@ def Monthly_Profit(trades, fakeTrade):
 
 
 
+        
+            
+
+        
 
 
 
+        
+        
 
 
-
-
+        

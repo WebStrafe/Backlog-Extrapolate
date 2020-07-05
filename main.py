@@ -1,5 +1,6 @@
 from backtester import Backtest
 from extrapolate import Monthly_Profit
+from extrapolate import Calculate_Drawdowns
 import os
 from os import path
 
@@ -18,7 +19,14 @@ def main():
 
     for eachSpreadsheet in backtest.spreadsheets:
         for eachSheet in eachSpreadsheet.sheets:
-            Monthly_Profit(eachSheet.trades, eachSheet.fakeTrade)
+            monthlyProfits = Monthly_Profit(eachSheet.trades, eachSheet.fakeTrade)
+            for eachMonth in monthlyProfits:
+                print(eachMonth[-1])
+
+
+            Calculate_Drawdowns(eachSheet.trades)
+
+
 
 
 
