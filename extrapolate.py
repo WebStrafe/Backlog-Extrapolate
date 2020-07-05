@@ -124,7 +124,6 @@ def Highest_Drawdown(drawdowns, percentage=-15.00, highest_no_filter=False):
 
     if highest_no_filter == False:
         for eachDrawdown in drawdowns:
-            print(eachDrawdown.percentageChange)
             if eachDrawdown.percentageChange > percentage and eachDrawdown.percentageChange <= highestDrawdownPercent:
                 highestDrawdownPercent = eachDrawdown.percentageChange
                 highestDrawdown = eachDrawdown
