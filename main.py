@@ -2,6 +2,11 @@ from backtester import Backtest
 from extrapolate import Monthly_Profit
 from extrapolate import Calculate_Drawdowns
 from extrapolate import Highest_Drawdown
+from extrapolate import Count_Periods_Drawdown
+from extrapolate import Filter_Drawdowns
+from extrapolate import Longest_Drawdown_Period
+from extrapolate import Average_Drawdown_Period
+from extrapolate import Max_Consecutive_Losses
 import os
 from os import path
 
@@ -26,8 +31,29 @@ def main():
 
 
             drawdowns = Calculate_Drawdowns(eachSheet.trades)
-            highestDrawdown = Highest_Drawdown(drawdowns, highest_no_filter=True)
+
+            highestDrawdown = Highest_Drawdown(drawdowns, no_filter=True)
             print(highestDrawdown.percentageChange)
+
+            drawdownsOverFifteenPercent = Filter_Drawdowns(drawdowns)
+
+            periodsOverFifteenPercent = Count_Periods_Drawdown(drawdownsOverFifteenPercent, no_filter=True)
+            print(periodsOverFifteenPercent)
+
+            longestPeriodForFifteenPercent = Longest_Drawdown_Period(drawdowns, moreThan=-1000, lessThan=-15.00)
+            print(longestPeriodForFifteenPercent.daysInDrawdown)
+            longestPeriodForAll = Longest_Drawdown_Period(drawdowns)
+            print(longestPeriodForAll.daysInDrawdown)
+
+            averageDrawdownPeriodForFifteen = Average_Drawdown_Period(drawdowns)
+            print(averageDrawdownPeriodForFifteen)
+
+            Max_Consecutive_Losses(eachSheet.trades)
+
+
+
+
+
 
 
 

@@ -321,8 +321,25 @@ def Monthly_Profit(trades, fakeTrade):
         
 
 
+def Max_Consecutive_Losses(trades):
+    maxConsecutiveLosses = 0
 
-        
+    currentMax = 0
+    for eachTrade in trades:
+        if eachTrade.profitLossPercent < 0:
+            currentMax += 1
+        else:
+            currentMax = 0
+
+            
+        if currentMax > maxConsecutiveLosses:
+                maxConsecutiveLosses = currentMax
+            
+    
+
+    print(maxConsecutiveLosses)
+
+
         
 
 
