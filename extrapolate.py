@@ -160,6 +160,70 @@ def Count_Periods_Drawdown(drawdowns, percentage=-15.00, no_filter=False):
 
 
 
+def Filter_Drawdowns(drawdowns, percentage=-15.00):
+    filteredDrawdowns = []
+
+    for eachDrawdown in drawdowns:
+        if eachDrawdown.percentageChange <= percentage:
+            filteredDrawdowns.append(eachDrawdown)
+    
+    return filteredDrawdowns
+
+
+
+
+def Longest_Drawdown_Period(drawdowns, moreThan=-15.00, lessThan=0.00, no_filter=False):
+
+    longestPeriod = 0
+    longestDrawdown = None
+
+    if no_filter == False:
+        for eachDrawdown in drawdowns:
+            if eachDrawdown.percentageChange <= lessThan and eachDrawdown.percentageChange >= moreThan:
+                if eachDrawdown.daysInDrawdown > longestPeriod:
+                    longestPeriod = eachDrawdown.daysInDrawdown
+                    longestDrawdown = eachDrawdown
+    else:
+        for eachDrawdown in drawdowns:
+            if eachDrawdown.daysInDrawdown > longestPeriod:
+                longestPeriod = eachDrawdown.daysInDrawdown
+                longestDrawdown = eachDrawdown
+    
+    return longestDrawdown
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
