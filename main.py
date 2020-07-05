@@ -1,6 +1,7 @@
 from backtester import Backtest
 from extrapolate import Monthly_Profit
 from extrapolate import Calculate_Drawdowns
+from extrapolate import Highest_Drawdown
 import os
 from os import path
 
@@ -24,7 +25,9 @@ def main():
                 print(eachMonth[-1])
 
 
-            Calculate_Drawdowns(eachSheet.trades)
+            drawdowns = Calculate_Drawdowns(eachSheet.trades)
+            highestDrawdown = Highest_Drawdown(drawdowns, highest_no_filter=True)
+            print(highestDrawdown.percentageChange)
 
 
 
