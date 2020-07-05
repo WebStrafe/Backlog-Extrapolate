@@ -195,6 +195,21 @@ def Longest_Drawdown_Period(drawdowns, moreThan=-15.00, lessThan=0.00, no_filter
 
 
 
+def Average_Drawdown_Period(drawdowns, moreThan=-10000, lessThan=-15.00, no_filter=False):
+
+    drawdownPeriodsToSum = []
+
+    if no_filter == False:
+        for eachDrawdown in drawdowns:
+            if eachDrawdown.percentageChange <= lessThan and eachDrawdown.percentageChange >= moreThan:
+                drawdownPeriodsToSum.append(eachDrawdown.daysInDrawdown)
+    else:
+        for eachDrawdown in drawdowns:
+            drawdownPeriodsToSum.append(eachDrawdown.daysInDrawdown)
+    
+    return round((sum(drawdownPeriodsToSum) / len(drawdownPeriodsToSum)))
+
+
 
 
 
