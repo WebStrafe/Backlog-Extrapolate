@@ -1,26 +1,18 @@
 import os
 from os import path
-import selenium
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.chrome.options import Options
 import time
-import pyfiglet
 import openpyxl
-import sqlite3
 from datetime import datetime
 from datetime import date
-from math import ceil
 import pandas as pd
 import requests
-from bs4 import BeautifulSoup
 import math
 import collections
 import xlrd
 import xlsxwriter
 import glob
+from extrapolate import Monthly_Profit
+import calendar
 
 
 
@@ -46,18 +38,33 @@ dateFormat = "%d/%m/%Y %H:%M"
 
 
 class Trade():
-    def __init__(self, entryOrder, exitOrder):
-        self.entry = entryOrder
-        self.exit = exitOrder
+    def __init__(self, entryOrder, exitOrder, fake=False):
+        if fake == False:
 
-        self.id = self.entry.tradeID
+            self.entry = entryOrder
+            self.exit = exitOrder
 
-        self.balance = self.exit.balance
-        self.date = self.exit.date
-        self.profitLossPercent = self.exit.profitLossPercent
+            self.id = self.entry.tradeID
 
-        self.month = self.date.strftime("%B")
-        self.year = self.date.year
+            self.balance = round(self.exit.balance, 2)
+            self.date = self.exit.date
+            self.profitLossPercent = self.exit.profitLossPercent
+
+            self.month = calendar.month_name[self.date.month]
+            self.year = self.date.year
+            self.monthDigit = self.date.month
+        else:
+            self.balance = exitOrder[0]
+            self.date = exitOrder[1]
+            self.month = calendar.month_name[self.date.month]
+            self.year = self.date.year
+            self.monthDigit = self.date.month
+    
+    def Date(self, newDate):
+        self.date = newDate
+        self.month = newDate.strftime("%B")
+        self.year = newDate.year
+        self.monthDigit = newDate.month
 
         
 
@@ -270,9 +277,12 @@ class Spreadsheet():
         # ['Trade #', 'Type', 'Date/Time', 'Candle Price', 'Profit/Loss $', 'Profit/Loss % Raw', 'Profit/Loss % Fixed', 'Profit/Loss % with Leverage', 'Bybit Fee $', 'Post Trade Account Balance $', 'Trade Net Profit']
 
 
-        for eachSheet in self.dfs:
-            sheet = Sheet(self.dfs[eachSheet])
-            self.sheets.append(sheet)
+        # for eachSheet in self.dfs:
+        #     sheet = Sheet(self.dfs[eachSheet])
+        #     self.sheets.append(sheet)
+
+        sheet = Sheet(self.dfs["New 23 Min"])
+        self.sheets.append(sheet)
 
 
 
@@ -319,10 +329,8 @@ class Backtest():
 
 
 def main():
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    path = f"{dir_path}/Imports"
-
-    backtest = Backtest(path)
+    pass
+            
     
 
 
