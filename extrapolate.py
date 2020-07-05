@@ -331,13 +331,12 @@ def Max_Consecutive_Losses(trades):
         else:
             currentMax = 0
 
-            
+
         if currentMax > maxConsecutiveLosses:
                 maxConsecutiveLosses = currentMax
-            
     
 
-    print(maxConsecutiveLosses)
+    return maxConsecutiveLosses
 
 
         
