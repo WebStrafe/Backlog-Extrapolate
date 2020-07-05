@@ -118,11 +118,11 @@ def Calculate_Drawdowns(trades):
 
 
 
-def Highest_Drawdown(drawdowns, percentage=-15.00, highest_no_filter=False):
+def Highest_Drawdown(drawdowns, percentage=-15.00, no_filter=False):
     highestDrawdownPercent = 0
     highestDrawdown = None
 
-    if highest_no_filter == False:
+    if no_filter == False:
         for eachDrawdown in drawdowns:
             if eachDrawdown.percentageChange > percentage and eachDrawdown.percentageChange <= highestDrawdownPercent:
                 highestDrawdownPercent = eachDrawdown.percentageChange
@@ -136,6 +136,25 @@ def Highest_Drawdown(drawdowns, percentage=-15.00, highest_no_filter=False):
 
     return highestDrawdown
 
+
+
+
+
+
+
+
+def Count_Periods_Drawdown(drawdowns, percentage=-15.00, no_filter=False):
+    totalPeriods = 0
+
+    if no_filter == False:
+        for eachDrawdown in drawdowns:
+            if eachDrawdown.percentageChange <= percentage:
+                totalPeriods += 1
+    else:
+        totalPeriods = len(drawdowns)
+
+
+    return totalPeriods
 
 
 
