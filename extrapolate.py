@@ -366,6 +366,104 @@ def Max_Consecutive_Losses(trades):
     return maxConsecutiveLosses
 
 
+
+
+
+
+
+
+def Average_Win(trades):
+    wins = []
+
+    for eachTrade in trades:
+        if eachTrade.profitLossPercent >= 0:
+            wins.append(eachTrade.profitLossPercent)
+    
+
+    return round(sum(wins) / len(wins), 2)
+
+
+
+
+def Highest_Win(trades):
+    highestWin = 0
+
+    for eachTrade in trades:
+        if eachTrade.profitLossPercent >= 0 and eachTrade.profitLossPercent > highestWin:
+            highestWin = eachTrade.profitLossPercent
+    
+
+    return highestWin
+
+
+
+
+def Average_Loss(trades):
+    losses = []
+
+    for eachTrade in trades:
+        if eachTrade.profitLossPercent < 0:
+            losses.append(eachTrade.profitLossPercent)
+    
+
+    return round(sum(losses) / len(losses), 2)
+
+
+
+def Total_Trades(trades):
+    return len(trades)
+
+
+
+
+def Total_Wins(trades):
+    totalWins = 0
+    for eachTrade in trades:
+        if eachTrade.profitLossPercent >= 0:
+            totalWins += 1
+    
+
+    return totalWins
+
+
+
+
+def Total_Losses(trades):
+    totalLosses = 0
+    for eachTrade in trades:
+        if eachTrade.profitLossPercent < 0:
+            totalLosses += 1
+    
+    return totalLosses
+
+
+
+
+def Win_Rate(trades):
+    totalWins = 0
+    for eachTrade in trades:
+        if eachTrade.profitLossPercent >= 0:
+            totalWins += 1
+    
+
+    return round((totalWins / len(trades)) * 100, 2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+
+
         
 
 

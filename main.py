@@ -7,6 +7,13 @@ from extrapolate import Filter_Drawdowns
 from extrapolate import Longest_Drawdown_Period
 from extrapolate import Average_Drawdown_Period
 from extrapolate import Max_Consecutive_Losses
+from extrapolate import Average_Win
+from extrapolate import Highest_Win
+from extrapolate import Average_Loss
+from extrapolate import Total_Trades
+from extrapolate import Total_Wins
+from extrapolate import Total_Losses
+from extrapolate import Win_Rate
 import os
 from os import path
 
@@ -49,6 +56,17 @@ def main():
             print(averageDrawdownPeriodForFifteen)
 
             Max_Consecutive_Losses(eachSheet.trades)
+
+            print("Here")
+            print(Average_Win(eachSheet.trades))
+            print(Highest_Win(eachSheet.trades))
+            print(Average_Loss(eachSheet.trades))
+            print(Total_Trades(eachSheet.trades))
+            print(Total_Wins(eachSheet.trades))
+            print(Total_Losses(eachSheet.trades))
+            print(Win_Rate(eachSheet.trades))
+
+            
 
 
 
