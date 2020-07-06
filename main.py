@@ -14,6 +14,7 @@ from extrapolate import Total_Trades
 from extrapolate import Total_Wins
 from extrapolate import Total_Losses
 from extrapolate import Win_Rate
+from extrapolate import Total_Backtest_Period
 import os
 from os import path
 
@@ -66,6 +67,9 @@ def main():
             print(Total_Losses(eachSheet.trades))
             print(Win_Rate(eachSheet.trades))
 
+            print(Total_Backtest_Period(eachSheet.trades, days=True))
+            print(Total_Backtest_Period(eachSheet.trades, months=True))
+            print(Total_Backtest_Period(eachSheet.trades, years=True))
             
 
 

@@ -270,7 +270,7 @@ def Average_Drawdown_Period(drawdowns, moreThan=-10000, lessThan=-15.00, no_filt
 
 
 
-def Monthly_Profit(trades, fakeTrade):
+def Monthly_Profit(allTrades, fakeTrade):
     from backtester import Trade
 
 
@@ -289,7 +289,7 @@ def Monthly_Profit(trades, fakeTrade):
 
 
 
-
+    trades = allTrades[:]
     
     trades.insert(0, fakeTrade) # Fake Trade is inserted so Percentage Change can be calculated from the Inital Balance ($1000 for example)
     monthToMonthTrades = []
@@ -393,7 +393,7 @@ def Highest_Win(trades):
             highestWin = eachTrade.profitLossPercent
     
 
-    return highestWin
+    return round(highestWin, 2)
 
 
 
@@ -447,6 +447,71 @@ def Win_Rate(trades):
     
 
     return round((totalWins / len(trades)) * 100, 2)
+
+
+
+
+
+
+def Total_Backtest_Days(trades):
+    firstDate = trades[0].entry.date
+    lastDate = trades[len(trades) - 1].exit.date
+
+    days = (lastDate - firstDate).days
+
+    return days
+
+
+
+def Total_Backtest_Months(trades):
+    firstDate = trades[0].entry.date
+    lastDate = trades[len(trades) - 1].exit.date
+
+    days = (lastDate - firstDate).days
+
+    months = round((days / 30.417), 2)
+
+    return months
+
+
+def Total_Backtest_Years(trades):
+    firstDate = trades[0].entry.date
+    lastDate = trades[len(trades) - 1].exit.date
+
+    days = (lastDate - firstDate).days
+
+    years = round((days / 365), 2)
+
+    return years
+
+
+
+
+def Total_Backtest_Period(trades, days=False, months=False, years=False):
+
+
+    firstDate = trades[0].entry.date
+    lastDate = trades[len(trades) - 1].exit.date
+
+    
+
+    daysCount = (lastDate - firstDate).days
+
+    if days == True:
+        return daysCount
+    
+    if months == True:
+        return round((daysCount / 30.417), 2)
+    
+    if years == True:
+        return round((daysCount / 365), 2)
+    
+    else:
+        return None
+
+
+
+
 
 
 
