@@ -43,7 +43,7 @@ def Calculate_Drawdowns(trades):
             if trades[y].balance < lowestLow.balance:
                 lowestLow = trades[y]
             
-            if trades[y].balance >= trades[x].balance:
+            if trades[y].balance >= trades[x].balance: # ONLY IF RECOVERY IS FOUND, it will add.
                 recovery = trades[y]
                 
                 if trades[x].balance == lowestLow.balance:
@@ -101,17 +101,44 @@ def Calculate_Drawdowns(trades):
                 lowestDrawdown = eachDrawdown
 
         lowestDrawdownsNoDuplicateRecoveries.append(lowestDrawdown)
+    
 
 
-    print("\n\nHere are drawdowns under -15%:\n")
-    for eachDrawdown in lowestDrawdownsNoDuplicateRecoveries:
+    previousDates = []
+    finalDrawdowns = []
+
+
+    for x in range(0, len(lowestDrawdownsNoDuplicateRecoveries)): # Removes ALL Drawdowns containing any recovery dates that fall below *any* PREVIOUS recovery date.
+        if x == 0:
+            previousDates.append(lowestDrawdownsNoDuplicateRecoveries[x].recoveryTrade.date)
+            finalDrawdowns.append(lowestDrawdownsNoDuplicateRecoveries[x])
+            continue
+
+        for y in range(0, len(previousDates)):
+            if lowestDrawdownsNoDuplicateRecoveries[x].recoveryTrade.date > previousDates[y]:
+                if y == len(previousDates) - 1:
+                    finalDrawdowns.append(lowestDrawdownsNoDuplicateRecoveries[x])
+                    previousDates.append(lowestDrawdownsNoDuplicateRecoveries[x].recoveryTrade.date)
+            else:
+                break
+
+
+
+    print("\n\n")
+
+    for eachDrawdown in finalDrawdowns:
         if eachDrawdown.percentageChange <= -15.00:
             print(f"{eachDrawdown.peakTrade.date} - {eachDrawdown.lowTrade.date} - {eachDrawdown.recoveryTrade.date}  ==  {eachDrawdown.percentageChange}%   |   Days in Drawdown: {eachDrawdown.daysInDrawdown}")
             print(f"{eachDrawdown.peakTrade.balance} - {eachDrawdown.lowTrade.balance} - {eachDrawdown.recoveryTrade.balance}")
             print("\n\n")
+        
+
+
+
+    
     
 
-    return lowestDrawdownsNoDuplicateRecoveries
+    return finalDrawdowns
 
 
 
