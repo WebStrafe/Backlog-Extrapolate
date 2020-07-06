@@ -30,47 +30,48 @@ def main():
     path = f"{dir_path}/Imports"
 
     backtest = Backtest(path)
+    backtest.Extrapolate()
 
-    for eachSpreadsheet in backtest.spreadsheets:
-        for eachSheet in eachSpreadsheet.sheets:
-            monthlyProfits = Monthly_Profit(eachSheet.trades, eachSheet.fakeTrade)
-            for eachMonth in monthlyProfits:
-                print(eachMonth[-1])
+    # for eachSpreadsheet in backtest.spreadsheets:
+    #     for eachSheet in eachSpreadsheet.sheets:
+    #         monthlyProfits = Monthly_Profit(eachSheet.trades, eachSheet.fakeTrade)
+    #         for eachMonth in monthlyProfits:
+    #             print(eachMonth[-1])
 
 
-            drawdowns = Calculate_Drawdowns(eachSheet.trades)
+    #         drawdowns = Calculate_Drawdowns(eachSheet.trades)
 
-            highestDrawdown = Highest_Drawdown(drawdowns, no_filter=True)
-            print(highestDrawdown.percentageChange)
+    #         highestDrawdown = Highest_Drawdown(drawdowns, no_filter=True)
+    #         print(highestDrawdown.percentageChange)
 
-            drawdownsOverFifteenPercent = Filter_Drawdowns(drawdowns)
+    #         drawdownsOverFifteenPercent = Filter_Drawdowns(drawdowns)
 
-            periodsOverFifteenPercent = Count_Periods_Drawdown(drawdownsOverFifteenPercent, no_filter=True)
-            print(periodsOverFifteenPercent)
+    #         periodsOverFifteenPercent = Count_Periods_Drawdown(drawdownsOverFifteenPercent, no_filter=True)
+    #         print(periodsOverFifteenPercent)
 
-            longestPeriodForFifteenPercent = Longest_Drawdown_Period(drawdowns, moreThan=-1000, lessThan=-15.00)
-            print(longestPeriodForFifteenPercent.daysInDrawdown)
-            longestPeriodForAll = Longest_Drawdown_Period(drawdowns)
-            print(longestPeriodForAll.daysInDrawdown)
+    #         longestPeriodForFifteenPercent = Longest_Drawdown_Period(drawdowns, moreThan=-1000, lessThan=-15.00)
+    #         print(longestPeriodForFifteenPercent.daysInDrawdown)
+    #         longestPeriodForAll = Longest_Drawdown_Period(drawdowns)
+    #         print(longestPeriodForAll.daysInDrawdown)
 
-            averageDrawdownPeriodForFifteen = Average_Drawdown_Period(drawdowns)
-            print(averageDrawdownPeriodForFifteen)
+    #         averageDrawdownPeriodForFifteen = Average_Drawdown_Period(drawdowns)
+    #         print(averageDrawdownPeriodForFifteen)
 
-            Max_Consecutive_Losses(eachSheet.trades)
+    #         Max_Consecutive_Losses(eachSheet.trades)
 
-            print("Here")
-            print(Average_Win(eachSheet.trades))
-            print(Highest_Win(eachSheet.trades))
-            print(Average_Loss(eachSheet.trades))
-            print(Total_Trades(eachSheet.trades))
-            print(Total_Wins(eachSheet.trades))
-            print(Total_Losses(eachSheet.trades))
-            print(Win_Rate(eachSheet.trades))
+    #         print("Here")
+    #         print(Average_Win(eachSheet.trades))
+    #         print(Highest_Win(eachSheet.trades))
+    #         print(Average_Loss(eachSheet.trades))
+    #         print(Total_Trades(eachSheet.trades))
+    #         print(Total_Wins(eachSheet.trades))
+    #         print(Total_Losses(eachSheet.trades))
+    #         print(Win_Rate(eachSheet.trades))
 
-            print(Total_Backtest_Period(eachSheet.trades, days=True))
-            print(Total_Backtest_Period(eachSheet.trades, months=True))
-            print(Total_Backtest_Period(eachSheet.trades, years=True))
-            print("finished")
+    #         print(Total_Backtest_Period(eachSheet.trades, days=True))
+    #         print(Total_Backtest_Period(eachSheet.trades, months=True))
+    #         print(Total_Backtest_Period(eachSheet.trades, years=True))
+    #         print("finished")
             
 
 

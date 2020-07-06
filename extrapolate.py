@@ -234,7 +234,13 @@ def Average_Drawdown_Period(drawdowns, moreThan=-10000, lessThan=-15.00, no_filt
         for eachDrawdown in drawdowns:
             drawdownPeriodsToSum.append(eachDrawdown.daysInDrawdown)
     
-    return round((sum(drawdownPeriodsToSum) / len(drawdownPeriodsToSum)))
+
+    try:
+        avgDrawdownPeriod = round((sum(drawdownPeriodsToSum) / len(drawdownPeriodsToSum)))
+    except ZeroDivisionError:
+        avgDrawdownPeriod = "N/A"
+    
+    return avgDrawdownPeriod
 
 
 
