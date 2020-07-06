@@ -70,6 +70,7 @@ def main():
             print(Total_Backtest_Period(eachSheet.trades, days=True))
             print(Total_Backtest_Period(eachSheet.trades, months=True))
             print(Total_Backtest_Period(eachSheet.trades, years=True))
+            print("finished")
             
 
 
