@@ -46,6 +46,9 @@ bybitFeePos = 8
 accountBalancePos = 9
 tradeNetProfitPos = 10
 
+
+tradeStartRow = 3
+
 dateFormat = "%d/%m/%Y %H:%M"
 
 
@@ -191,7 +194,8 @@ class ExitOrder():
 
 
 class Sheet():
-    def __init__(self, sheet):
+    def __init__(self, sheet, id):
+        self.id = str(id)
         self.trades = []
         
 
@@ -227,7 +231,6 @@ class Sheet():
         initialCapitalPos = 10
 
 
-        tradeStartRow = 3
 
 
         self.info = sheetSettingsRow[infoPos]
@@ -265,9 +268,9 @@ class Sheet():
             self.trades.append(newTrade)
         
 
-        for eachTrade in self.trades:
-            print(eachTrade.balance)
-            print(eachTrade.date)
+        # for eachTrade in self.trades:
+        #     print(eachTrade.balance)
+        #     print(eachTrade.date)
         
 
         print("\n\n")
@@ -292,12 +295,74 @@ class Spreadsheet():
         # ['Trade #', 'Type', 'Date/Time', 'Candle Price', 'Profit/Loss $', 'Profit/Loss % Raw', 'Profit/Loss % Fixed', 'Profit/Loss % with Leverage', 'Bybit Fee $', 'Post Trade Account Balance $', 'Trade Net Profit']
 
 
-        # for eachSheet in self.dfs:
-        #     sheet = Sheet(self.dfs[eachSheet])
-        #     self.sheets.append(sheet)
+        for index, eachSheet in enumerate(self.dfs, start=0):
 
-        sheet = Sheet(self.dfs["System F"])
-        self.sheets.append(sheet)
+            rowValues = self.dfs[eachSheet].values.tolist()
+
+
+            comparisonRow = ['Trade #', 'Type', 'Date/Time', 'Candle Price', 'NONE', 'NONE', 'NONE', 'Profit/Loss % with Leverage', 'Bybit Fee $', 'Post Trade Account Balance $', 'Trade Net Profit']
+            comparisonIndexRow = [tradeIDPos, typePos, dateTimePos, candlePricePos, profitLossPercentLeveragePos, bybitFeePos, accountBalancePos, tradeNetProfitPos]
+
+            checkRow = rowValues[2]
+            checkFirstTradeRow = rowValues[tradeStartRow]
+
+            print(checkFirstTradeRow)
+
+
+
+            verified = True
+
+            try:
+
+                # for index, eachComparisonString in enumerate(checkRow, start=0):
+                #     if index == 4 or index == 5 or index == 6:
+                #         continue
+                #     if index == 11:
+                #         break
+                #     if eachComparisonString != comparisonRow[index]:
+                #         print(f"{eachComparisonString} of index {index} Out Of Place. Error!  [{eachSheet}]")
+                #         verified = False
+
+
+                if len(checkRow) < 11:
+                    verified = False
+                    print(f"Less than 11. Error!  [{eachSheet}]")
+                    
+                else:
+                    for eachValue in comparisonIndexRow:
+                        if checkRow[eachValue] != comparisonRow[eachValue]:
+                            verified = False
+                            print(f"{comparisonRow[eachValue]} Out Of Place. Error!  [{eachSheet}]")
+                
+
+                if len(checkFirstTradeRow) < 11:
+                    verified = False
+                    print("checkFirstTradeRow FALSE")
+                else:
+                    if checkFirstTradeRow[tradeIDPos] == 0 or checkFirstTradeRow[dateTimePos] == 0:
+                        print("First Trades NOT Correct.")
+                        verified = False
+                
+
+
+                        
+                        
+
+                
+            
+
+            except:
+                print(f"Import Error with sheet {eachSheet}")
+                verified = False
+
+
+            if verified == True:
+
+                sheet = Sheet(self.dfs[eachSheet], index)
+                self.sheets.append(sheet)
+
+        # sheet = Sheet(self.dfs["System F"])
+        # self.sheets.append(sheet)
 
 
 
@@ -333,6 +398,7 @@ class Backtest():
         for eachSpreadsheet in spreadsheetFileNames:
             spreadsheetObject = Spreadsheet(eachSpreadsheet)
             self.spreadsheets.append(spreadsheetObject)
+        print("\n\n\n\n")
     
 
 
