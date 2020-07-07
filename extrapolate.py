@@ -145,13 +145,13 @@ def Calculate_Drawdowns(trades):
 
 
 
-def Highest_Drawdown(drawdowns, percentage=-15.00, no_filter=False):
+def Highest_Drawdown(drawdowns, moreThan=-14.99, lessThan=0, no_filter=False):
     highestDrawdownPercent = 0
     highestDrawdown = None
 
     if no_filter == False:
         for eachDrawdown in drawdowns:
-            if eachDrawdown.percentageChange > percentage and eachDrawdown.percentageChange <= highestDrawdownPercent:
+            if eachDrawdown.percentageChange <= lessThan and eachDrawdown.percentageChange >= moreThan and eachDrawdown.percentageChange <= highestDrawdownPercent:
                 highestDrawdownPercent = eachDrawdown.percentageChange
                 highestDrawdown = eachDrawdown
     else:
@@ -338,6 +338,27 @@ def Monthly_Profit(allTrades, fakeTrade):
 
 
     return monthlyProfits # This contains the following: [ theMonth, theYear, theOldBalance, theNewBalance, thePercentageChange, theStringUsedInTextFile ]
+
+
+
+
+
+
+def Average_Monthly_Profit(monthlyProfits):
+
+    percentages = []
+
+    for eachMonth in monthlyProfits:
+        percentages.append(eachMonth[4])
+    
+
+    return round(sum(percentages) / len(percentages), 2)
+
+
+
+
+
+
 
 
 

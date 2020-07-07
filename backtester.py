@@ -27,9 +27,8 @@ from extrapolate import Total_Wins
 from extrapolate import Total_Losses
 from extrapolate import Win_Rate
 from extrapolate import Total_Backtest_Period
+from extrapolate import Average_Monthly_Profit
 import calendar
-
-
 
 
 
@@ -50,8 +49,6 @@ tradeNetProfitPos = 10
 tradeStartRow = 3
 
 dateFormat = "%d/%m/%Y %H:%M"
-
-
 
 
 
@@ -84,11 +81,6 @@ class Trade():
         self.year = newDate.year
         self.monthDigit = newDate.month
 
-        
-
-
-
-
 
 class EntryOrder():
     def __init__(self, order, fake=False):
@@ -104,7 +96,6 @@ class EntryOrder():
                 self.position = "Long"
             else:
                 self.position = "Unknown"
-
 
 
             self.date = order[dateTimePos]
@@ -194,13 +185,11 @@ class ExitOrder():
 
 
 class Sheet():
-    def __init__(self, sheet, id):
+    def __init__(self, sheet, id, sheetname):
         self.id = str(id)
         self.trades = []
+        self.sheetname = sheetname
         
-
-
-
         # Template for Sheet AS FOLLOWS:
 
             # Information about the System = Column A : Row 2  == Index[0]
@@ -230,12 +219,11 @@ class Sheet():
         leveragePos = 8
         initialCapitalPos = 10
 
-
-
-
         self.info = sheetSettingsRow[infoPos]
         self.leverage = sheetSettingsRow[leveragePos]
         self.initialCapital = sheetSettingsRow[initialCapitalPos]
+
+        self.exportName = f"{id}_{self.sheetname}_{self.leverage}x"
 
 
         firstEntry = rows[tradeStartRow]
@@ -247,8 +235,6 @@ class Sheet():
         self.fakeTrade = Trade(fakeEntry, fakeExit)
 
         unParsedEntriesExits = []
-
-        
 
         for rowIndex in range(tradeStartRow, len(rows)):
             if "Entry" in str(rows[rowIndex][typePos]):
@@ -266,27 +252,17 @@ class Sheet():
         for x in tupleEntryExits:
             newTrade = Trade(x, next(tupleEntryExits))
             self.trades.append(newTrade)
-        
-
-        # for eachTrade in self.trades:
-        #     print(eachTrade.balance)
-        #     print(eachTrade.date)
-        
-
-        print("\n\n")
-        print(self.fakeTrade.balance)
-
-
-
 
 
 class Spreadsheet():
     def __init__(self, path):
+        self.spreadsheetName = path.rsplit('/',1)[1].split(".xlsx")[0]
+        print(f"Spreadsheet Name = {self.spreadsheetName}")
+
         self.sheets = []
         pd.set_option('display.max_rows', None)
 
         xl = pd.ExcelFile(path)
-        # print(f"{path} could not converted to Spreadsheet object.")
         
 
         self.dfs = {sheet: xl.parse(sheet).fillna(0) for sheet in xl.sheet_names}
@@ -299,30 +275,15 @@ class Spreadsheet():
 
             rowValues = self.dfs[eachSheet].values.tolist()
 
-
             comparisonRow = ['Trade #', 'Type', 'Date/Time', 'Candle Price', 'NONE', 'NONE', 'NONE', 'Profit/Loss % with Leverage', 'Bybit Fee $', 'Post Trade Account Balance $', 'Trade Net Profit']
             comparisonIndexRow = [tradeIDPos, typePos, dateTimePos, candlePricePos, profitLossPercentLeveragePos, bybitFeePos, accountBalancePos, tradeNetProfitPos]
 
             checkRow = rowValues[2]
             checkFirstTradeRow = rowValues[tradeStartRow]
 
-            print(checkFirstTradeRow)
-
-
-
             verified = True
 
             try:
-
-                # for index, eachComparisonString in enumerate(checkRow, start=0):
-                #     if index == 4 or index == 5 or index == 6:
-                #         continue
-                #     if index == 11:
-                #         break
-                #     if eachComparisonString != comparisonRow[index]:
-                #         print(f"{eachComparisonString} of index {index} Out Of Place. Error!  [{eachSheet}]")
-                #         verified = False
-
 
                 if len(checkRow) < 11:
                     verified = False
@@ -345,12 +306,6 @@ class Spreadsheet():
                 
 
 
-                        
-                        
-
-                
-            
-
             except:
                 print(f"Import Error with sheet {eachSheet}")
                 verified = False
@@ -358,13 +313,9 @@ class Spreadsheet():
 
             if verified == True:
 
-                sheet = Sheet(self.dfs[eachSheet], index)
+                print(f"\n\n\nSHEET NAME = {eachSheet} and {path}\n\n")
+                sheet = Sheet(self.dfs[eachSheet], index, eachSheet)
                 self.sheets.append(sheet)
-
-        # sheet = Sheet(self.dfs["System F"])
-        # self.sheets.append(sheet)
-
-
 
 
 
@@ -393,7 +344,6 @@ class Backtest():
         if len(spreadsheetFileNames) == 0:
             raise Exception("Files in directory are not in an XLSX format.")
 
-        print(spreadsheetFileNames)
 
         for eachSpreadsheet in spreadsheetFileNames:
             spreadsheetObject = Spreadsheet(eachSpreadsheet)
@@ -408,19 +358,23 @@ class Backtest():
             for eachSheet in eachSpreadsheet.sheets:
                 eachSheet.monthlyProfits = Monthly_Profit(eachSheet.trades, eachSheet.fakeTrade)
 
+                eachSheet.averageMonthlyProfit = Average_Monthly_Profit(eachSheet.monthlyProfits)
+
+
 
                 drawdowns = Calculate_Drawdowns(eachSheet.trades)
                 eachSheet.drawdowns = drawdowns
 
 
                 eachSheet.highestDrawdown = Highest_Drawdown(drawdowns, no_filter=True)
+                eachSheet.highestDrawdownOverFifteenPercent = Highest_Drawdown(drawdowns, no_filter=False)
 
                 eachSheet.drawdownsOverFifteenPercent = Filter_Drawdowns(drawdowns)
 
                 eachSheet.periodsOverFifteenPercent = Count_Periods_Drawdown(eachSheet.drawdownsOverFifteenPercent, no_filter=True)
 
                 eachSheet.longestPeriodForFifteenPercent = Longest_Drawdown_Period(drawdowns, moreThan=-1000, lessThan=-15.00)
-                eachSheet.longestPeriodForAll = Longest_Drawdown_Period(drawdowns)
+                eachSheet.longestPeriodForAll = Longest_Drawdown_Period(drawdowns, moreThan=-14.99, lessThan=0)
 
                 eachSheet.averageDrawdownPeriodForFifteen = Average_Drawdown_Period(drawdowns)
 
@@ -440,53 +394,153 @@ class Backtest():
                 eachSheet.totalBacktestYears = Total_Backtest_Period(eachSheet.trades, years=True)
         
 
-        # for eachSpreadsheet in self.spreadsheets:
-        #     for eachSheet in eachSpreadsheet.sheets:
-        #         monthlyProfits = Monthly_Profit(eachSheet.trades, eachSheet.fakeTrade)
-        #         for eachMonth in monthlyProfits:
-        #             print(eachMonth[-1])
+    def Export(self, path, export_entry=False):
+        now = datetime.now()
+        current_time = now.strftime("%d-%m-%y_%H-%M-%S")
 
 
-        #         drawdowns = Calculate_Drawdowns(eachSheet.trades)
-
-        #         highestDrawdown = Highest_Drawdown(drawdowns, no_filter=True)
-        #         print(highestDrawdown.percentageChange)
-
-        #         drawdownsOverFifteenPercent = Filter_Drawdowns(drawdowns)
-
-        #         periodsOverFifteenPercent = Count_Periods_Drawdown(drawdownsOverFifteenPercent, no_filter=True)
-        #         print(periodsOverFifteenPercent)
-
-        #         longestPeriodForFifteenPercent = Longest_Drawdown_Period(drawdowns, moreThan=-1000, lessThan=-15.00)
-        #         print(longestPeriodForFifteenPercent.daysInDrawdown)
-        #         longestPeriodForAll = Longest_Drawdown_Period(drawdowns)
-        #         print(longestPeriodForAll.daysInDrawdown)
-
-        #         averageDrawdownPeriodForFifteen = Average_Drawdown_Period(drawdowns)
-        #         print(averageDrawdownPeriodForFifteen)
-
-        #         Max_Consecutive_Losses(eachSheet.trades)
-
-        #         print("Here")
-        #         print(Average_Win(eachSheet.trades))
-        #         print(Highest_Win(eachSheet.trades))
-        #         print(Average_Loss(eachSheet.trades))
-        #         print(Total_Trades(eachSheet.trades))
-        #         print(Total_Wins(eachSheet.trades))
-        #         print(Total_Losses(eachSheet.trades))
-        #         print(Win_Rate(eachSheet.trades))
-
-        #         print(Total_Backtest_Period(eachSheet.trades, days=True))
-        #         print(Total_Backtest_Period(eachSheet.trades, months=True))
-        #         print(Total_Backtest_Period(eachSheet.trades, years=True))
-        #         print("finished")
+        for eachSpreadsheet in self.spreadsheets:
+            for eachSheet in eachSpreadsheet.sheets:
+                fileName = f"{path}/Exports/{eachSpreadsheet.spreadsheetName}/Export_{current_time}/{eachSheet.exportName}.txt"
+                os.makedirs(os.path.dirname(fileName), exist_ok=True)
 
 
 
+                with open(fileName, "w") as f:
+                    f.write(eachSheet.info)
+
+                    f.write("\n\n")
+
+                    f.write(f"Leverage: {eachSheet.leverage}")
+
+                    f.write("\n\n\n")
 
 
+                    f.write("Monthly Profits\n-----\n")
+                    for eachMonth in eachSheet.monthlyProfits:
+                        f.write(f"{eachMonth[-1]}\n")
+                    
+                    f.write("\n")
+
+                    f.write(f"Average Monthly Return Percentage: {eachSheet.averageMonthlyProfit}%")
+
+                    f.write("\n\n\n\n")
+
+                    f.write(f"Drawdowns (-15% or Lower) [ORDERED BY DATE]  [PEAKS, LOWS, RECOVERIES]\n-----\n")
+
+                    for eachDrawdown in eachSheet.drawdownsOverFifteenPercent:
+                        f.write(f"PEAK: {eachDrawdown.peakTrade.date} | LOW: {eachDrawdown.lowTrade.date} | RECOVERY: {eachDrawdown.recoveryTrade.date} | DRAWDOWN: {eachDrawdown.percentageChange}% | DAYS IN DRAWDOWN: {eachDrawdown.daysInDrawdown}")
+                        f.write("\n\n")
+                    
+
+                    f.write("\n\n\n")
+                    f.write("Highest Drawdown (-15% and Over)\n-----\n")
+                    try:
+                        f.write(f"PEAK: {eachSheet.highestDrawdownOverFifteenPercent.peakTrade.date} | LOW: {eachSheet.highestDrawdownOverFifteenPercent.lowTrade.date} | RECOVERY: {eachSheet.highestDrawdownOverFifteenPercent.recoveryTrade.date} | DRAWDOWN: {eachSheet.highestDrawdownOverFifteenPercent.percentageChange}% | DAYS IN DRAWDOWN: {eachSheet.highestDrawdownOverFifteenPercent.daysInDrawdown}")
+                    except:
+                        f.write(f"None")
+                    
+                    f.write(f"\n\n\n\n-----\n\n")
+
+                    f.write(f"Total Periods of Drawdown <= -15%: {eachSheet.periodsOverFifteenPercent}")
+                    
+                    f.write("\n")
+
+                    try:
+                        f.write(f"Longest -15%- Drawdown Period: {eachSheet.longestPeriodForFifteenPercent.daysInDrawdown}")
+                    except:
+                        f.write(f"Longest -15%- Drawdown Period: None")
+                    
+                    f.write("\n")
+
+                    try:
+                        f.write(f"Average -15%- Drawdown Period: {eachSheet.averageDrawdownPeriodForFifteen}")
+                    except:
+                        f.write(f"Average -15%- Drawdown Period: N/A")
+                    
+                    f.write("\n\n")
+
+                    try:
+                        f.write(f"Highest Drawdown ({eachSheet.leverage}x and Fees): {eachSheet.highestDrawdown.percentageChange}%")
+                    except:
+                        f.write(f"Highest Drawdown ({eachSheet.leverage}x and Fees): N/A")
+                    
+                    f.write("\n")
 
 
+                    try:
+                        f.write(f"Highest Drawdown OVER -15%: {eachSheet.highestDrawdownOverFifteenPercent.percentageChange}%")
+                    except:
+                        f.write(f"Highest Drawdown OVER -15%: N/A")
+                    
+                    f.write("\n")
+
+                    f.write(f"Max Consecutive Losses: {eachSheet.maxConsecutiveLosses}")
+
+                    f.write("\n\n")
+
+                    f.write(f"Average Win Percentage: {eachSheet.averageWin}%")
+
+                    f.write("\n")
+
+                    f.write(f"Highest Win Percentage: {eachSheet.highestWin}%")
+
+                    f.write("\n")
+
+                    f.write(f"Average Loss: {eachSheet.averageLoss}")
+
+                    f.write("\n\n")
+
+                    try:
+                        f.write(f"Longest Period of Drawdown UNDER -15% : {eachSheet.longestPeriodForFifteenPercent.daysInDrawdown} Day(s) | {eachSheet.longestPeriodForFifteenPercent.percentageChange}%")
+                    except:
+                        f.write(f"Longest Period of Drawdown UNDER -15% : N/A")
+                    
+                    f.write("\n")
+
+                    try:
+                        f.write(f"Longest Period of Drawdown OVER -15% : {eachSheet.longestPeriodForAll.daysInDrawdown} Day(s) | {eachSheet.longestPeriodForAll.percentageChange}%")
+                    except:
+                        f.write(f"Longest Period of Drawdown OVER -15% : N/A")
+                    
+                    f.write("\n\n")
+
+                    f.write("------")
+
+                    f.write("\n\n")
+
+
+                    f.write(f"Total Trades: {eachSheet.totalTrades}")
+
+                    f.write("\n\n")
+
+                    f.write(f"Total Wins: {eachSheet.totalWins}")
+
+                    f.write("\n\n")
+
+                    f.write(f"Total Losses: {eachSheet.totalLosses}")
+
+                    f.write("\n\n")
+
+                    f.write(f"Win Rate % : {eachSheet.winRate}")
+
+                    f.write("\n\n")
+
+                    f.write(f"------")
+
+                    f.write("\n\n")
+
+                    f.write(f"Back Test Days: {eachSheet.totalBacktestDays}")
+
+                    f.write("\n")
+
+                    f.write(f"Back Test Months: {eachSheet.totalBacktestMonths}")
+
+                    f.write("\n")
+
+                    f.write(f"Back Test Years: {eachSheet.totalBacktestYears}")
+
+                    f.write(f"\n\n----")
 
 
 
@@ -494,8 +548,6 @@ def main():
     pass
             
     
-
-
 
 
 

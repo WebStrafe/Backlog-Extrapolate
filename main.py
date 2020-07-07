@@ -31,6 +31,7 @@ def main():
 
     backtest = Backtest(path)
     backtest.Extrapolate()
+    backtest.Export(dir_path, export_entry=False)
 
     # for eachSpreadsheet in backtest.spreadsheets:
     #     for eachSheet in eachSpreadsheet.sheets:
